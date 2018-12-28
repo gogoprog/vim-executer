@@ -1,17 +1,24 @@
 
 command! -bar ExecuterRun :luado Executer_run()
 
+let g:Executer_executable = ''
+let g:Executer_terminal = 'urxvtc -e'
+let g:Executer_args = ''
+
 lua <<EOF
 
-local termApp = "urxvtc -e"
 
 function Executer_run()
+  local termApp = vim.eval("g:Executer_terminal")
   local findCmd = "find . -executable -type f -printf \"%T@ %Tc %p\\n\" | sort -rn | awk '{ print $NF }'"
-  local executable
+  local executable = vim.eval("g:Executer_executable")
+  local args = vim.eval("g:Executer_args")
 
-  for line in io.popen(findCmd):lines() do
-    executable = line
-    break
+  if executable == '' then
+    for line in io.popen(findCmd):lines() do
+      executable = line
+      break
+    end
   end
 
   if executable then
@@ -23,7 +30,7 @@ function Executer_run()
       os.execute(termApp .. " tmux attach-session -t " .. sessionName.. " &")
     end
 
-    os.execute("tmux send-keys -t " .. sessionName .. " '" .. executable .. "' Enter")
+    os.execute("tmux send-keys -t " .. sessionName .. " '" .. executable .. " " .. args .. "' Enter")
   end
 end
 EOF
