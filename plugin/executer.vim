@@ -1,16 +1,14 @@
 
-command! -bar ExecuterRun :luado Executer_run()
+command! -bar ExecuterRun :lua Executer_run()
 
 let g:Executer_executable = ''
 let g:Executer_terminal = 'urxvtc -e'
 let g:Executer_args = ''
 
 lua <<EOF
-
-
 function Executer_run()
   local termApp = vim.eval("g:Executer_terminal")
-  local findCmd = "find . -executable -type f -printf \"%T@ %Tc %p\\n\" | sort -rn | awk '{ print $NF }'"
+  local findCmd = "ls -1t `find . -executable -type f`"
   local executable = vim.eval("g:Executer_executable")
   local args = vim.eval("g:Executer_args")
 
