@@ -21,7 +21,7 @@ function Executer_run()
     end
   end
 
-  if executable then
+  if executable ~= '' then
     local sessionName = string.gsub(executable, "(.*/)(.*)", "%2")
     local sessionExists = os.execute("tmux has-session -t " .. sessionName)
 
