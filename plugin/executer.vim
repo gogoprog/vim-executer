@@ -64,14 +64,14 @@ function Executer_run()
 end
 
 function Executer_selectExecutable()
-  vim.command(":silent !find -type f -executable | fzf --header=\"Executer: Select executable file...\" > " .. tmpfilepath)
+  vim.command(":silent !find -type f -executable -not -path '*/\\.*' | fzf --header=\"Executer: Select executable file...\" > " .. tmpfilepath)
   local result = read_file(tmpfilepath)
   local absolute_executable = run_and_get_stdout("readlink -f " .. result)
   vim.command(":let g:Executer_executable=" .. quote(absolute_executable))
 end
 
 function Executer_selectWorkingDirectory()
-  vim.command(":silent !find -type d | fzf --header=\"Executer: Select working directory...\" > " .. tmpfilepath)
+  vim.command(":silent !find -type d -not -path '*/\\.*' | fzf --header=\"Executer: Select working directory...\" > " .. tmpfilepath)
   local result = read_file(tmpfilepath)
   local absolute_directory = run_and_get_stdout("readlink -f " .. result)
   vim.command(":let g:Executer_workingDirectory=" .. quote(absolute_directory))
