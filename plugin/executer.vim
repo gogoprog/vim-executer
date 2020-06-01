@@ -41,14 +41,14 @@ function Executer_run()
   end
 
   if executable ~= '' then
-    local termApp = vim.eval("g:Executer_terminal")
     local cwd = vim.eval("g:Executer_workingDirectory")
     local args = vim.eval("g:Executer_args")
 
-    local sessionName = string.gsub(executable, "(.*/)(.*)", "%2")
+    local sessionName = "vim-executer"
     local sessionExists = os.execute("tmux has-session -t " .. sessionName)
 
     if not sessionExists then
+      local termApp = vim.eval("g:Executer_terminal")
       os.execute("tmux new-session -d -s " .. sessionName)
       os.execute(termApp .. " tmux attach-session -t " .. sessionName.. " &")
     end
