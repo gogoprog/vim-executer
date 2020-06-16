@@ -3,10 +3,10 @@ command! -bar ExecuterRun :lua Executer_run()
 command! -bar ExecuterSelectExecutable :lua Executer_selectExecutable()
 command! -bar ExecuterSelectWorkingDirectory :lua Executer_selectWorkingDirectory()
 
-let g:Executer_executable = ''
-let g:Executer_workingDirectory = ''
-let g:Executer_terminal = 'urxvtc -e'
-let g:Executer_args = ''
+let g:Executer_executable = get(g:, 'Executer_executable', "")
+let g:Executer_workingDirectory = get(g:, 'Executer_workingDirectory', "")
+let g:Executer_terminal = get(g:, 'Executer_terminal', 'urxvtc -e')
+let g:Executer_args = get(g:, 'Executer_args', "")
 
 lua <<EOF
 local function read_file(path)
