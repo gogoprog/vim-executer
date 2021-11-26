@@ -2,6 +2,7 @@
 command! -bar ExecuterRun :lua Executer_run()
 command! -bar ExecuterSelectExecutable :lua Executer_selectExecutable()
 command! -bar ExecuterSelectWorkingDirectory :lua Executer_selectWorkingDirectory()
+command! -bar ExecuterSave :call Executer_save()
 
 let g:Executer_executable = get(g:, 'Executer_executable', "")
 let g:Executer_workingDirectory = get(g:, 'Executer_workingDirectory', "")
@@ -77,3 +78,18 @@ function Executer_selectWorkingDirectory()
   vim.command(":let g:Executer_workingDirectory=" .. quote(absolute_directory))
 end
 EOF
+
+function Executer_save_var(name, value)
+  if empty(a:value)
+  else
+    let line="let " . a:name . "=\"" . a:value . "\""
+    call writefile([line], ".vimrc", "a")
+  end
+endfunction
+
+function Executer_save()
+  :call Executer_save_var("g:Executer_executable", g:Executer_executable)
+  :call Executer_save_var("g:Executer_workingDirectory", g:Executer_workingDirectory)
+  :call Executer_save_var("g:Executer_terminal", g:Executer_terminal)
+  :call Executer_save_var("g:Executer_args", g:Executer_args)
+endfunction
