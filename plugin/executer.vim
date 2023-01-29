@@ -1,7 +1,7 @@
 
 command! -bar ExecuterRun :lua Executer_run()
-command! -bar ExecuterSelectExecutable :lua Executer_selectExecutable()
-command! -bar ExecuterSelectWorkingDirectory :lua Executer_selectWorkingDirectory()
+command! -bar ExecuterSelectExecutable :call Executer_iselect_executable()
+command! -bar ExecuterSelectWorkingDirectory :call Executer_iselect_wd()
 command! -bar ExecuterSave :call Executer_save()
 
 let g:Executer_executable = get(g:, 'Executer_executable', "")
@@ -10,6 +10,7 @@ let g:Executer_terminal = get(g:, 'Executer_terminal', 'urxvtc -e')
 let g:Executer_args = get(g:, 'Executer_args', "")
 
 lua <<EOF
+
 local function read_file(path)
     local file = io.open(path, "r")
     if not file then return nil end
@@ -31,7 +32,7 @@ end
 local tmpfilepath = "/tmp/vim-executer"
 
 function Executer_run()
-  local executable = vim.eval("g:Executer_executable")
+  local executable = vim.g.Executer_executable
 
   if executable == '' then
   local findCmd = "ls -1t `find . -executable -type f`"
@@ -42,14 +43,14 @@ function Executer_run()
   end
 
   if executable ~= '' then
-    local cwd = vim.eval("g:Executer_workingDirectory")
-    local args = vim.eval("g:Executer_args")
+    local cwd = vim.g.Executer_workingDirectory
+    local args = vim.g.Executer_args
 
     local sessionName = "vim-executer"
     local sessionExists = os.execute("tmux has-session -t " .. sessionName)
 
-    if not sessionExists then
-      local termApp = vim.eval("g:Executer_terminal")
+    if sessionExists == 256 then
+      local termApp = vim.g.Executer_terminal
       os.execute("tmux new-session -d -s " .. sessionName)
       os.execute(termApp .. " tmux attach-session -t " .. sessionName.. " &")
     end
@@ -63,21 +64,23 @@ function Executer_run()
     os.execute("tmux send-keys -t " .. sessionName .. " '" .. command .. "' Enter")
   end
 end
-
-function Executer_selectExecutable()
-  vim.command(":silent !find -type f -executable -not -path '*/\\.*' | fzf --header=\"Executer: Select executable file...\" > " .. tmpfilepath)
-  local result = read_file(tmpfilepath)
-  local absolute_executable = run_and_get_stdout("readlink -f " .. result)
-  vim.command(":let g:Executer_executable=" .. quote(absolute_executable))
-end
-
-function Executer_selectWorkingDirectory()
-  vim.command(":silent !find -type d -not -path '*/\\.*' | fzf --header=\"Executer: Select working directory...\" > " .. tmpfilepath)
-  local result = read_file(tmpfilepath)
-  local absolute_directory = run_and_get_stdout("readlink -f " .. result)
-  vim.command(":let g:Executer_workingDirectory=" .. quote(absolute_directory))
-end
 EOF
+
+function Executer_iselect_executable()
+  call fzf#run({'source': 'find -type f -executable -not -path "*/\\.*"', 'sink': function('Executer_select_executable')})
+endfunction
+
+function Executer_select_executable(file)
+  :let g:Executer_executable=fnamemodify(a:file, ':p')
+endfunction
+
+function Executer_iselect_wd()
+  call fzf#run({'source': 'find -type d -not -path "*/\\.*"', 'sink': function('Executer_select_wd')})
+endfunction
+
+function Executer_select_wd(file)
+  :let g:Executer_executable=fnamemodify(a:file, ':p')
+endfunction
 
 function Executer_save_var(name, value)
   if empty(a:value)
