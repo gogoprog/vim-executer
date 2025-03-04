@@ -79,7 +79,7 @@ function Executer_iselect_wd()
 endfunction
 
 function Executer_select_wd(file)
-  :let g:Executer_executable=fnamemodify(a:file, ':p')
+  :let g:Executer_workingDirectory=fnamemodify(a:file, ':p')
 endfunction
 
 function Executer_save_var(name, value)
