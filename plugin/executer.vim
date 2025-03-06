@@ -57,9 +57,10 @@ function Executer_run()
 
     local command = executable .. " " .. args
     if cwd ~= '' then
-
       command = "cd " .. cwd .. " && " .. command
     end
+
+    os.execute("tmux send-keys -t " .. sessionName .. " C-c")
 
     os.execute("tmux send-keys -t " .. sessionName .. " '" .. command .. "' Enter")
   end
